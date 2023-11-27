@@ -1,0 +1,1 @@
+[![Workflow Status](https://github.com/mstniy/computed_flutter/actions/workflows/tests.yml/badge.svg)](https://github.com/mstniy/computed_flutter/actions?query=branch%3Amaster+workflow%3Atests) [![codecov](https://codecov.io/github/mstniy/computed_flutter/graph/badge.svg?token=VVG1YCC1FL)](https://codecov.io/github/mstniy/computed_flutter)
