@@ -2,7 +2,7 @@ export 'package:computed/computed.dart';
 import 'package:computed/computed.dart';
 import 'package:flutter/foundation.dart';
 
-import 'src/computed_flutter.dart';
+import 'src/value_listenable_extension.dart';
 import 'src/computed_value_listenable.dart';
 
 extension ComputedAsValueListenableExtension<T> on Computed<T> {
