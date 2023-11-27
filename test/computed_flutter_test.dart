@@ -4,35 +4,108 @@ import 'package:computed_flutter/computed_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:test/test.dart';
 
+class _TestDataSource<T> implements ValueListenable<T> {
+  T _value;
+  final _listeners = <void Function()>{};
+
+  _TestDataSource(this._value);
+
+  @override
+  T get value => _value;
+  set value(T newValue) {
+    _value = newValue;
+    for (var l in _listeners) {
+      l();
+    }
+  }
+
+  @override
+  void addListener(void Function() l) {
+    _listeners.add(l);
+  }
+
+  @override
+  void removeListener(void Function() l) {
+    _listeners.remove(l);
+  }
+}
+
 void main() {
   group('ValueListenable', () {
-    test('can be used as a data source', () async {
-      final v = ValueNotifier(1);
+    group('data source', () {
+      test('use works', () async {
+        final v = _TestDataSource(1);
 
-      // ignore: unnecessary_cast
-      final c = Computed(() => (v as ValueListenable).use * 2);
+        var cCnt = 0;
 
-      var expectation = 2;
-      var subCnt = 0;
+        final c = Computed(() {
+          cCnt++;
+          return v.use * 2;
+        });
 
-      final sub = c.listen((event) {
-        subCnt++;
-        expect(event, expectation);
-      }, (e) => fail(e.toString()));
+        var expectation = 2;
+        var subCnt = 0;
 
-      try {
-        expect(subCnt, 0);
-        await Future.value();
-        expect(subCnt, 1);
-        v.value = 1;
-        expect(subCnt, 1);
-        expectation = 4;
-        v.value = 2;
-        expect(subCnt, 2);
-      } finally {
-        sub.cancel();
-      }
+        final sub = c.listen((event) {
+          subCnt++;
+          expect(event, expectation);
+        }, (e) => fail(e.toString()));
+
+        try {
+          expect(cCnt, 2);
+          expect(subCnt, 0);
+          await Future.value();
+          expect(cCnt, 2);
+          expect(subCnt, 1);
+          v.value = 1;
+          expect(cCnt, 2);
+          expect(subCnt, 1);
+          expectation = 4;
+          v.value = 2;
+          expect(cCnt, 4);
+          expect(subCnt, 2);
+        } finally {
+          sub.cancel();
+        }
+      });
+
+      test('useAll works', () async {
+        final v = _TestDataSource(1);
+
+        var cCnt = 0;
+
+        final c = Computed(() {
+          cCnt++;
+          return v.useAll * 2;
+        });
+
+        var expectation = 2;
+        var subCnt = 0;
+
+        final sub = c.listen((event) {
+          subCnt++;
+          expect(event, expectation);
+        }, (e) => fail(e.toString()));
+
+        try {
+          expect(cCnt, 2);
+          expect(subCnt, 0);
+          await Future.value();
+          expect(cCnt, 2);
+          expect(subCnt, 1);
+          v.value = 1;
+          expect(cCnt, 4);
+          expect(subCnt, 1);
+          expectation = 4;
+          v.value = 2;
+          expect(cCnt, 6);
+          expect(subCnt, 2);
+        } finally {
+          sub.cancel();
+        }
+      });
     });
+
     test('can be used as a data sink', () async {
       final controller = StreamController<int>.broadcast(
           sync: true); // Use a broadcast stream to make debugging easier

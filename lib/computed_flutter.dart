@@ -13,4 +13,5 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
 
 extension ComputedValueListenableExtension<T> on ValueListenable<T> {
   T get use => ComputedValueListenableExtensionImpl<T>(this).use;
+  T get useAll => ComputedValueListenableExtensionImpl<T>(this).useAll;
 }

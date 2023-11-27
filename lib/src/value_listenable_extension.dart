@@ -31,7 +31,7 @@ class ComputedValueListenableExtensionImpl<T> {
   final ValueListenable<T> v;
 
   ComputedValueListenableExtensionImpl(this.v);
-  T get use {
+  T _use(bool memoized) {
     final caller = GlobalCtx.currentComputation;
     return caller.useDataSource(
         v,
@@ -39,6 +39,14 @@ class ComputedValueListenableExtensionImpl<T> {
         (router) => ValueListenableDataSourceSubscription<T>(v, router),
         true,
         v.value,
-        true);
+        memoized);
+  }
+
+  T get use {
+    return _use(true);
+  }
+
+  T get useAll {
+    return _use(false);
   }
 }
