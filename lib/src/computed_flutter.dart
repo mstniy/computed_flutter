@@ -6,63 +6,17 @@ import '../computed_flutter.dart';
 
 // ignore: implementation_imports
 import 'package:computed/src/computed.dart';
-
-class ComputedValueListenable<T> extends ValueListenable<T> {
-  final ComputedImpl<T> _parent;
-  final Set<VoidCallback> _listeners = {};
-  StreamSubscription<T>? _parentSubscription;
-
-  ComputedValueListenable(this._parent);
-
-  void _onData(T data) {
-    for (var listener in _listeners) {
-      listener();
-    }
-  }
-
-  @override
-  void addListener(VoidCallback listener) {
-    _listeners.add(listener);
-    if (_listeners.length == 1) {
-      // TODO: Use a lower-level integration instead of asStream
-      // To keep a single source of truth for the listeners of the computation, inside ComputedImpl
-      _parentSubscription = _parent.asStream.listen((event) => _onData(event));
-      // ValueListenable does not propagate exceptions
-    }
-  }
-
-  @override
-  void removeListener(VoidCallback listener) {
-    if (_listeners.remove(listener)) {
-      if (_listeners.isEmpty) {
-        _parentSubscription!.cancel();
-      }
-    }
-  }
-
-  @override
-  T get value {
-    return _parent.value;
-  }
-}
-
-class ComputedAsValueListenableExtensionImpl<T> {
-  final Computed<T> c;
-
-  ComputedAsValueListenableExtensionImpl(this.c);
-
-  ValueListenable<T> get asValueListenable {
-    return ComputedValueListenable(c as ComputedImpl<T>);
-  }
-}
+// ignore: implementation_imports
+import 'package:computed/src/data_source_subscription.dart';
 
 class ValueListenableDataSourceSubscription<T>
     implements DataSourceSubscription<T> {
   final void Function() voidCallback;
+  final ComputedImpl<T> c;
   final ValueListenable<T> v;
 
-  ValueListenableDataSourceSubscription(this.v, void Function(T data) onData)
-      : voidCallback = (() => onData(v.value)) {
+  ValueListenableDataSourceSubscription(this.v, this.c)
+      : voidCallback = (() => c.onDataSourceData(v.value)) {
     v.addListener(voidCallback);
   }
 
@@ -70,21 +24,6 @@ class ValueListenableDataSourceSubscription<T>
   Future<void> cancel() {
     v.removeListener(voidCallback);
     return Future.value();
-  }
-
-  @override
-  bool get isPaused => false;
-
-  @override
-  void pause([Future<void>? resumeSignal]) {
-    // TODO: implement pause
-    throw UnimplementedError();
-  }
-
-  @override
-  void resume() {
-    // TODO: implement resume
-    throw UnimplementedError();
   }
 }
 
@@ -97,8 +36,9 @@ class ComputedValueListenableExtensionImpl<T> {
     return caller.useDataSource(
         v,
         () => v.use,
-        (onData) => ValueListenableDataSourceSubscription<T>(v, onData),
+        (router) => ValueListenableDataSourceSubscription<T>(v, router),
         true,
-        v.value);
+        v.value,
+        true);
   }
 }

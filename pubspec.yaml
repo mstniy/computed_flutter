@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   built_collection: ^5.1.1
-  computed: ^0.0.1
+  computed: ^0.2.1
   #computed:
   #  path: ../computed
 dev_dependencies:

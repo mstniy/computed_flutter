@@ -16,8 +16,6 @@ void main() {
     source.value = [4, 5, 6].toBuiltList();
   }();
 
-  print('a');
-
   runApp(const MyApp());
 }
 
@@ -63,7 +61,7 @@ class MyHomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ValueListenableBuilder(
-              valueListenable: append0.asValueListenable,
+              valueListenable: append0.asValueListenable(<int>[].build()),
               builder: (context, BuiltList<int> value, child) => Text(
                 value.toString(),
                 style: Theme.of(context).textTheme.headlineMedium,
