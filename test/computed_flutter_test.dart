@@ -69,40 +69,33 @@ void main() {
         }
       });
 
-      test('useAll works', () async {
+      test('react works', () async {
         final v = _TestDataSource(1);
 
+        var reactExpectation = 1;
         var cCnt = 0;
 
         final c = Computed(() {
           cCnt++;
-          return v.useAll * 2;
+          var flag = false;
+          v.react((p0) {
+            expect(flag, false);
+            flag = true;
+            expect(p0, reactExpectation);
+          });
+          expect(flag, true);
         });
 
-        var expectation = 2;
-        var subCnt = 0;
+        final sub = c.listen((event) {}, (e) => fail(e.toString()));
 
-        final sub = c.listen((event) {
-          subCnt++;
-          expect(event, expectation);
-        }, (e) => fail(e.toString()));
+        expect(cCnt, 2);
+        v.value = 1;
+        expect(cCnt, 4);
+        reactExpectation = 2;
+        v.value = 2;
+        expect(cCnt, 6);
 
-        try {
-          expect(cCnt, 2);
-          expect(subCnt, 0);
-          await Future.value();
-          expect(cCnt, 2);
-          expect(subCnt, 1);
-          v.value = 1;
-          expect(cCnt, 4);
-          expect(subCnt, 1);
-          expectation = 4;
-          v.value = 2;
-          expect(cCnt, 6);
-          expect(subCnt, 2);
-        } finally {
-          sub.cancel();
-        }
+        sub.cancel();
       });
     });
 

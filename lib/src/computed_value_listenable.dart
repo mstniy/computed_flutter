@@ -1,10 +1,8 @@
-// ignore: implementation_imports
-import 'package:computed/src/computed.dart';
 import 'package:computed/computed.dart';
 import 'package:flutter/foundation.dart';
 
 class ComputedValueListenable<T> extends ValueNotifier<T> {
-  final ComputedImpl<T> _parent;
+  final Computed<T> _parent;
   ComputedSubscription<T>? _parentSubscription;
 
   ComputedValueListenable(this._parent, T initial) : super(initial);
@@ -28,15 +26,5 @@ class ComputedValueListenable<T> extends ValueNotifier<T> {
       _parentSubscription!.cancel();
       _parentSubscription = null;
     }
-  }
-}
-
-class ComputedAsValueListenableExtensionImpl<T> {
-  final Computed<T> c;
-
-  ComputedAsValueListenableExtensionImpl(this.c);
-
-  ValueListenable<T> asValueListenable(T initial) {
-    return ComputedValueListenable(c as ComputedImpl<T>, initial);
   }
 }

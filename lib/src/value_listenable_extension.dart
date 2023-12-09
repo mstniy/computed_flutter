@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../computed_flutter.dart';
-
 // ignore: implementation_imports
 import 'package:computed/src/computed.dart';
 // ignore: implementation_imports
@@ -24,29 +22,5 @@ class ValueListenableDataSourceSubscription<T>
   Future<void> cancel() {
     v.removeListener(voidCallback);
     return Future.value();
-  }
-}
-
-class ComputedValueListenableExtensionImpl<T> {
-  final ValueListenable<T> v;
-
-  ComputedValueListenableExtensionImpl(this.v);
-  T _use(bool memoized) {
-    final caller = GlobalCtx.currentComputation;
-    return caller.useDataSource(
-        v,
-        () => v.use,
-        (router) => ValueListenableDataSourceSubscription<T>(v, router),
-        true,
-        v.value,
-        memoized);
-  }
-
-  T get use {
-    return _use(true);
-  }
-
-  T get useAll {
-    return _use(false);
   }
 }
