@@ -132,4 +132,44 @@ void main() {
       }
     });
   });
+
+  group('Listenable', () {
+    test('select works', () async {
+      final v = _TestDataSource(1);
+
+      var cCnt = 0;
+
+      // ignore: unnecessary_cast
+      final c = (v as Listenable).select(() {
+        cCnt++;
+        return v.value * 2;
+      });
+
+      var expectation = 2;
+      var subCnt = 0;
+
+      await Future.value(0);
+      expect(cCnt, 0);
+
+      final sub = c.listen((event) {
+        subCnt++;
+        expect(event, expectation);
+      }, (e) => fail(e.toString()));
+
+      expect(cCnt, 2);
+      expect(subCnt, 0);
+      await Future.value();
+      expect(cCnt, 2);
+      expect(subCnt, 1);
+      v.value = 1;
+      expect(cCnt, 4);
+      expect(subCnt, 1);
+      expectation = 4;
+      v.value = 2;
+      expect(cCnt, 6);
+      expect(subCnt, 2);
+
+      sub.cancel();
+    });
+  });
 }

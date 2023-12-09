@@ -2,6 +2,7 @@ export 'package:computed/computed.dart';
 import 'package:computed/computed.dart';
 // ignore: implementation_imports
 import 'package:computed/src/computed.dart';
+import 'package:computed_flutter/src/listenable_extension.dart';
 import 'package:flutter/foundation.dart';
 
 import 'src/value_listenable_extension.dart';
@@ -20,8 +21,7 @@ extension ComputedValueListenableExtension<T> on ValueListenable<T> {
     return caller.dataSourceUse(
         this,
         (router) => ValueListenableDataSourceSubscription<T>(this, router),
-        true,
-        value);
+        () => value);
   }
 
   /// As [Stream.react]
@@ -30,8 +30,7 @@ extension ComputedValueListenableExtension<T> on ValueListenable<T> {
     return caller.dataSourceReact<T>(
         this,
         (router) => ValueListenableDataSourceSubscription<T>(this, router),
-        true,
-        value,
+        () => value,
         onData,
         onError);
   }
@@ -50,5 +49,17 @@ extension ComputedValueListenableExtension<T> on ValueListenable<T> {
   /// As [Stream.mockEmitError]
   void mockEmitError(Object e) {
     GlobalCtx.routerFor(this)?.onDataSourceError(e);
+  }
+}
+
+extension ComputedListenableExtension<T> on Listenable {
+  Computed<T> select(T Function() user) {
+    return Computed(() {
+      final caller = GlobalCtx.currentComputation;
+      return caller.dataSourceUse(
+          this,
+          (router) => ListenableDataSourceSubscription<T>(this, router, user),
+          () => checkIdempotent(user));
+    });
   }
 }
