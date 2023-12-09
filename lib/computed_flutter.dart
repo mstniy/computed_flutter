@@ -53,6 +53,9 @@ extension ComputedValueListenableExtension<T> on ValueListenable<T> {
 }
 
 extension ComputedListenableExtension<T> on Listenable {
+  /// Returns a computation representing the application of the given function on this Listenable.
+  ///
+  /// Note that the given function is not called until the computation is eventually listened to.
   Computed<T> select(T Function() user) {
     return Computed(() {
       final caller = GlobalCtx.currentComputation;
