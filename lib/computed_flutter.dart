@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import 'src/computed_listenable.dart';
 import 'src/value_listenable_extension.dart';
 import 'src/computed_value_listenable.dart';
 
@@ -37,12 +38,44 @@ void _postFrameCallback(Duration _) {
 }
 
 extension ComputedAsValueListenableExtension<T> on Computed<T> {
+  /// Returns a [ValueListenable] tracking this computation.
+  ///
+  /// Note that the value listenable will not be updated if the computation throws an exception.
   ValueListenable<T> asValueListenable(T initial) {
     return ComputedValueListenable(this, initial);
   }
 
+  /// Returns a [ComputedListenable] tracking this computation.
+  ///
+  /// Note that this is more powerful than [asValueListenable] in that
+  /// it makes it possible to handle errors and no-value cases.
+  ComputedListenable<T> get asListenable {
+    return ComputedListenable(this);
+  }
+
   Widget when(BuildContext context, Widget Function(T) onValue,
-      {required Widget Function() noValue, Widget Function(Object)? error}) {
+      {Key? key,
+      required Widget Function() noValue,
+      Widget Function(Object)? error}) {
+    final listenable = asListenable;
+    return ListenableBuilder(
+        builder: (context, child) {
+          T value;
+          try {
+            value = listenable.value;
+          } on NoValueException {
+            return noValue();
+          } catch (e) {
+            if (error != null) return error(e);
+            rethrow;
+          }
+          return onValue(value);
+        },
+        listenable: listenable,
+        key: key);
+  }
+
+  T watch(BuildContext context, {T Function()? or}) {
     var metadata = _ComputedFlutterCtx._computations[this];
     if (metadata == null) {
       metadata = _ComputedMetadata();
@@ -87,15 +120,15 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
     }
 
     if (metadata._lastWasValue == null) {
-      return noValue();
-    } else if (metadata._lastWasValue == true) {
-      return onValue(metadata._lastValue);
-    } else {
-      if (error != null) {
-        return error(metadata._lastError!);
+      if (or != null) {
+        return or();
       } else {
-        throw metadata._lastError!;
+        throw NoValueException();
       }
+    } else if (metadata._lastWasValue == true) {
+      return metadata._lastValue;
+    } else {
+      throw metadata._lastError!;
     }
   }
 }
