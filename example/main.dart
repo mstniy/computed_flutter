@@ -57,13 +57,10 @@ class MyHomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            list.when(
-                context,
-                (value) => Text(
-                      value.toString(),
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                noValue: () => const Text('no value'))
+            Text(
+              list.watch.toString(),
+              style: Theme.of(context).textTheme.headlineMedium,
+            )
           ],
         ),
       ),
