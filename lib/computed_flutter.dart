@@ -53,6 +53,9 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
     return ComputedListenable(this);
   }
 
+  /// Runs the given builders whenever the result of this computation changes.
+  ///
+  /// If [error] is not specified, will throw the error if this computation throws.
   Widget when(BuildContext context, Widget Function(T) onValue,
       {Key? key,
       required Widget Function() noValue,
@@ -75,6 +78,9 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
         key: key);
   }
 
+  /// Returns the current result of the computation, or [or] if it has no result yet, and marks the current widget for re-builds whenever it changes.
+  ///
+  /// If [or] is not provided and the computation has no value, throws [NoValueException].
   T watch(BuildContext context, {T Function()? or}) {
     var metadata = _ComputedFlutterCtx._computations[this];
     if (metadata == null) {
