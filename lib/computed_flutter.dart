@@ -53,9 +53,9 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
     return ComputedListenable(this);
   }
 
-  /// Runs the given builders whenever the result of this computation changes.
+  /// Returns a widget that rebuilds when the result of this computation changes.
   ///
-  /// If [error] is not specified, will throw the error if this computation throws.
+  /// If [error] is not specified and this computation throws, will throw the error during build.
   Widget when(BuildContext context, Widget Function(T) onValue,
       {Key? key,
       required Widget Function() noValue,
@@ -91,12 +91,7 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
       assert(
           SchedulerBinding.instance.schedulerPhase !=
               SchedulerPhase.persistentCallbacks,
-          'Do not mutate state (by setting the value of the ValueNotifier '
-          'that you are subscribed to) during a `build` method. If you need '
-          'to schedule a value update after `build` has completed, use '
-          '`SchedulerBinding.instance.scheduleTask(updateTask, Priority.idle)`, '
-          '`SchedulerBinding.addPostFrameCallback(updateTask)`, '
-          'or similar.');
+          'Computation changed value during widget build');
       // Mark the element as needing to be rebuilt
       (context as Element).markNeedsBuild();
     }
