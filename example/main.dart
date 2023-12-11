@@ -58,7 +58,7 @@ class MyHomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              list.watch.toString(),
+              list.watch(context).toString(),
               style: Theme.of(context).textTheme.headlineMedium,
             )
           ],

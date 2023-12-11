@@ -56,10 +56,10 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
   /// Returns a widget that rebuilds when the result of this computation changes.
   ///
   /// If [error] is not specified and this computation throws, will throw the error during build.
-  Widget when(BuildContext context, Widget Function(T) onValue,
+  Widget when(Widget Function(BuildContext, T) onValue,
       {Key? key,
-      required Widget Function() noValue,
-      Widget Function(Object)? error}) {
+      required Widget Function(BuildContext) noValue,
+      Widget Function(BuildContext, Object)? error}) {
     final listenable = asListenable;
     return ListenableBuilder(
         builder: (context, child) {
@@ -67,12 +67,12 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
           try {
             value = listenable.value;
           } on NoValueException {
-            return noValue();
+            return noValue(context);
           } catch (e) {
-            if (error != null) return error(e);
+            if (error != null) return error(context, e);
             rethrow;
           }
-          return onValue(value);
+          return onValue(context, value);
         },
         listenable: listenable,
         key: key);
