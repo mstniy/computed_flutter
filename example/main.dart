@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends ComputedWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
@@ -58,7 +58,7 @@ class MyHomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              list.watch(context).toString(),
+              list.use.toString(),
               style: Theme.of(context).textTheme.headlineMedium,
             )
           ],

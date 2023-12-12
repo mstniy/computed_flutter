@@ -2,6 +2,7 @@ export 'package:computed/computed.dart';
 import 'package:computed/computed.dart';
 // ignore: implementation_imports
 import 'package:computed/src/computed.dart';
+import 'package:computed_flutter/src/computed_flutter.dart';
 import 'package:computed_flutter/src/listenable_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -186,3 +187,27 @@ extension ComputedListenableExtension<T> on Listenable {
     });
   }
 }
+
+mixin ComputedFlutterMixin on StatelessWidget {
+  @override
+  StatelessElement createElement() => ComputedFlutterElement(this);
+  // TODO: Make CFE wrap super.createElement to play ball with other mixins
+  //  This will also let us define the mixin on not just StatelessWidget,
+  //  but Widget in general
+}
+
+abstract class ComputedWidget extends StatelessWidget {
+  const ComputedWidget({super.key});
+
+  @override
+  StatelessElement createElement() => ComputedFlutterElement(this);
+}
+
+/*class ComputedBuilder extends StatefulWidget {
+  final Widget Function(BuildContext) _builder;
+  final Widget Function(BuildContext) _noValue;
+  final Widget Function(BuildContext) _error;
+
+  @override
+  State<ComputedBuilder> createState() => _ComputedBuilderState();
+}*/
