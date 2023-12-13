@@ -109,9 +109,6 @@ extension ComputedListenableExtension<T> on Listenable {
 mixin ComputedFlutterMixin on StatelessWidget {
   @override
   StatelessElement createElement() => ComputedFlutterElement(this);
-  // TODO: Make CFE wrap super.createElement to play ball with other mixins
-  //  This will also let us define the mixin on not just StatelessWidget,
-  //  but Widget in general
 }
 
 abstract class ComputedWidget extends StatelessWidget {
@@ -119,6 +116,13 @@ abstract class ComputedWidget extends StatelessWidget {
 
   @override
   StatelessElement createElement() => ComputedFlutterElement(this);
+}
+
+abstract class ComputedStatefulWidget extends StatefulWidget {
+  const ComputedStatefulWidget({super.key});
+
+  @override
+  StatefulElement createElement() => ComputedFlutterStatefulElement(this);
 }
 
 class ComputedBuilder extends Builder with ComputedFlutterMixin {

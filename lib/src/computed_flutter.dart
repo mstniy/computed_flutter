@@ -49,3 +49,8 @@ class ComputedFlutterElement extends StatelessElement
     with _ComputedFlutterElementMixin {
   ComputedFlutterElement(super.widget);
 }
+
+class ComputedFlutterStatefulElement extends StatefulElement
+    with _ComputedFlutterElementMixin {
+  ComputedFlutterStatefulElement(super.widget);
+}
