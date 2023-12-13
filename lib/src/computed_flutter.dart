@@ -1,8 +1,9 @@
 import 'package:computed/computed.dart';
 import 'package:flutter/widgets.dart';
-// ignore: implementation_imports
+import 'value_listenable_extension.dart';
 
 mixin _ComputedFlutterElementMixin on ComponentElement {
+  final _forceRebuild = ValueNotifier<int>(0);
   ComputedSubscription<int>? _sub;
   Widget? _result;
   Object? _error;
@@ -11,9 +12,8 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
 
   @override
   Widget build() {
-    // TODO: Somehow trigger the computation when setState is called
-    //  eg. by adding to a stream or a valuenotifier (should call the listener in sync)
     _sub ??= Computed(() {
+      _forceRebuild.use;
       try {
         final newResult = super.build();
         if (_lastWasError == false && newResult == _result) {
@@ -28,7 +28,7 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
       return _buildCnt + 1;
     }).listen((newBuildCnt) {
       _buildCnt = newBuildCnt;
-      markNeedsBuild();
+      super.markNeedsBuild();
     }, null);
     if (_lastWasError == true) {
       throw _error!;
@@ -42,6 +42,11 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
     _sub?.cancel();
     _sub = null;
     super.unmount();
+  }
+
+  @override
+  void markNeedsBuild() {
+    _forceRebuild.value++;
   }
 
   // TODO: Do we need update/reassemble hooks also?

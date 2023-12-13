@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import 'src/computed_listenable.dart';
-import 'src/value_listenable_extension.dart';
+export 'src/value_listenable_extension.dart';
 
 extension ComputedAsValueListenableExtension<T> on Computed<T> {
   /// Returns a [ValueListenable] tracking this computation.
@@ -36,34 +36,6 @@ extension ComputedListenableExtension<ListenableType extends Listenable>
         (router) => ListenableDataSourceSubscription(this, router),
         () => ComputedListenableExtensionUpdateToken());
     return this;
-  }
-}
-
-extension ComputedValueListenableExtension<T> on ValueListenable<T> {
-  /// As [Stream.use]
-  T get use {
-    final caller = GlobalCtx.currentComputation;
-    return caller.dataSourceUse(
-        this,
-        (router) => ValueListenableDataSourceSubscription<T>(this, router),
-        () => value);
-  }
-
-  /// As [Stream.react]
-  void react(void Function(T) onData, [void Function(Object)? onError]) {
-    final caller = GlobalCtx.currentComputation;
-    return caller.dataSourceReact<T>(
-        this,
-        (router) => ValueListenableDataSourceSubscription<T>(this, router),
-        () => value,
-        onData,
-        onError);
-  }
-
-  /// As [Stream.prev]
-  T get prev {
-    final caller = GlobalCtx.currentComputation;
-    return caller.dataSourcePrev(this);
   }
 }
 
