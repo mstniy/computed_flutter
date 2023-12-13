@@ -9,7 +9,6 @@ import 'package:flutter/widgets.dart';
 
 import 'src/computed_listenable.dart';
 import 'src/value_listenable_extension.dart';
-import 'src/computed_value_listenable.dart';
 
 extension ComputedAsValueListenableExtension<T> on Computed<T> {
   /// Returns a [ValueListenable] tracking this computation.
@@ -25,31 +24,6 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
   /// it makes it possible to handle errors and no-value cases.
   ComputedListenable<T> get asListenable {
     return ComputedListenable(this);
-  }
-
-  /// Returns a widget that rebuilds when the result of this computation changes.
-  ///
-  /// If [error] is not specified and this computation throws, will throw the error during build.
-  Widget when(Widget Function(BuildContext, T) onValue,
-      {Key? key,
-      required Widget Function(BuildContext) noValue,
-      Widget Function(BuildContext, Object)? error}) {
-    final listenable = asListenable;
-    return ListenableBuilder(
-        builder: (context, child) {
-          T value;
-          try {
-            value = listenable.value;
-          } on NoValueException {
-            return noValue(context);
-          } catch (e) {
-            if (error != null) return error(context, e);
-            rethrow;
-          }
-          return onValue(context, value);
-        },
-        listenable: listenable,
-        key: key);
   }
 }
 
@@ -90,16 +64,6 @@ extension ComputedValueListenableExtension<T> on ValueListenable<T> {
   T get prev {
     final caller = GlobalCtx.currentComputation;
     return caller.dataSourcePrev(this);
-  }
-
-  /// As [Stream.mockEmit]
-  void mockEmit(T value) {
-    GlobalCtx.routerFor(this)?.onDataSourceData(value);
-  }
-
-  /// As [Stream.mockEmitError]
-  void mockEmitError(Object e) {
-    GlobalCtx.routerFor(this)?.onDataSourceError(e);
   }
 }
 

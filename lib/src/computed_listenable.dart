@@ -5,19 +5,16 @@ class ComputedListenable<T> extends ChangeNotifier {
   final Computed<T> _parent;
   ComputedSubscription<T>? _parentSubscription;
 
-  @protected
-  bool? lastWasError;
-  @protected
-  T? lastValue;
-  @protected
-  Object? lastError;
+  bool? _lastWasError;
+  T? _lastValue;
+  Object? _lastError;
 
   /// If the computation has no value yet, throws [NoValueException].
   /// If the computation produced an error, throws it.
   T get value {
-    if (lastWasError == null) throw NoValueException();
-    if (lastWasError == false) return lastValue!;
-    throw lastError!;
+    if (_lastWasError == null) throw NoValueException();
+    if (_lastWasError == false) return _lastValue!;
+    throw _lastError!;
   }
 
   ComputedListenable(this._parent);
@@ -29,12 +26,12 @@ class ComputedListenable<T> extends ChangeNotifier {
     if (firstListener) {
       assert(_parentSubscription == null);
       _parentSubscription = _parent.listen((event) {
-        lastWasError = false;
-        lastValue = event;
+        _lastWasError = false;
+        _lastValue = event;
         notifyListeners();
       }, (error) {
-        lastWasError = true;
-        lastError = error;
+        _lastWasError = true;
+        _lastError = error;
         notifyListeners();
       });
     }
@@ -49,5 +46,13 @@ class ComputedListenable<T> extends ChangeNotifier {
       _parentSubscription!.cancel();
       _parentSubscription = null;
     }
+  }
+}
+
+class ComputedValueListenable<T> extends ComputedListenable<T>
+    implements ValueListenable<T> {
+  ComputedValueListenable(super.parent, T initial) {
+    _lastWasError = false;
+    _lastValue = initial;
   }
 }

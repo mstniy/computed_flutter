@@ -26,7 +26,7 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
       return _buildCnt + 1;
     }).listen((newBuildCnt) {
       _buildCnt = newBuildCnt;
-      markNeedsBuild();
+      markNeedsBuild(); // TODO: No need to call this on the first iteration
     }, null);
     if (_lastWasError == true) {
       throw _error!;

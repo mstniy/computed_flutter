@@ -37,9 +37,15 @@ void main() {
         final v = _TestDataSource(1);
 
         var cCnt = 0;
+        int? prevExpectation; // If null, expect NVE
 
         final c = Computed(() {
           cCnt++;
+          try {
+            expect(v.prev, prevExpectation);
+          } on NoValueException {
+            expect(prevExpectation, null);
+          }
           return v.use * 2;
         });
 
@@ -60,6 +66,7 @@ void main() {
           v.value = 1;
           expect(cCnt, 2);
           expect(subCnt, 1);
+          prevExpectation = 1;
           expectation = 4;
           v.value = 2;
           expect(cCnt, 4);
@@ -134,42 +141,94 @@ void main() {
   });
 
   group('Listenable', () {
-    test('watch works', () async {
-      final v = _TestDataSource(1);
+    group('data source', () {
+      test('watch works', () async {
+        final v = _TestDataSource(1);
 
-      var cCnt = 0;
+        var cCnt = 0;
 
-      // ignore: unnecessary_cast
-      final c = $(() {
-        cCnt++;
-        return v.watch.value * 2;
+        // ignore: unnecessary_cast
+        final c = $(() {
+          cCnt++;
+          return v.watch.value * 2;
+        });
+
+        var expectation = 2;
+        var subCnt = 0;
+
+        await Future.value(0);
+        expect(cCnt, 0);
+
+        final sub = c.listen((event) {
+          subCnt++;
+          expect(event, expectation);
+        }, (e) => fail(e.toString()));
+
+        expect(cCnt, 2);
+        expect(subCnt, 0);
+        await Future.value();
+        expect(cCnt, 2);
+        expect(subCnt, 1);
+        v.value = 1;
+        expect(cCnt, 4);
+        expect(subCnt, 1);
+        expectation = 4;
+        v.value = 2;
+        expect(cCnt, 6);
+        expect(subCnt, 2);
+
+        sub.cancel();
       });
-
-      var expectation = 2;
-      var subCnt = 0;
-
-      await Future.value(0);
-      expect(cCnt, 0);
-
-      final sub = c.listen((event) {
-        subCnt++;
-        expect(event, expectation);
-      }, (e) => fail(e.toString()));
-
-      expect(cCnt, 2);
-      expect(subCnt, 0);
-      await Future.value();
-      expect(cCnt, 2);
-      expect(subCnt, 1);
-      v.value = 1;
-      expect(cCnt, 4);
-      expect(subCnt, 1);
-      expectation = 4;
-      v.value = 2;
-      expect(cCnt, 6);
-      expect(subCnt, 2);
-
-      sub.cancel();
+    });
+    group('data sink', () {
+      test('asListenable works', () async {
+        final controller = StreamController.broadcast(sync: true);
+        final stream = controller.stream;
+        var cCnt = 0;
+        final c = $(() {
+          cCnt++;
+          return stream.use;
+        });
+        final l = c.asListenable;
+        await Future.value();
+        expect(cCnt, 0);
+        var lCnt = 0;
+        int? expectation; // If null, expect an exception
+        int? errExpectation;
+        l.addListener(() {
+          lCnt++;
+          if (expectation != null) {
+            expect(l.value, expectation);
+          } else {
+            try {
+              l.value;
+              fail("Expected throw");
+            } catch (e) {
+              expect(e, errExpectation);
+            }
+          }
+        });
+        await Future.value();
+        expect(cCnt, 2);
+        expect(lCnt, 0);
+        expectation = 0;
+        controller.add(0);
+        expect(cCnt, 4);
+        expect(lCnt, 1);
+        expectation = 1;
+        controller.add(1);
+        expect(cCnt, 6);
+        expect(lCnt, 2);
+        expectation = 2;
+        c.fix(2);
+        expect(cCnt, 6);
+        expect(lCnt, 3);
+        expectation = null;
+        errExpectation = 3;
+        c.fixThrow(3);
+        expect(cCnt, 6);
+        expect(lCnt, 4);
+      });
     });
   });
 }
