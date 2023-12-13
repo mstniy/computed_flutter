@@ -11,6 +11,8 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
 
   @override
   Widget build() {
+    // TODO: Somehow trigger the computation when setState is called
+    //  eg. by adding to a stream or a valuenotifier (should call the listener in sync)
     _sub ??= Computed(() {
       try {
         final newResult = super.build();
@@ -26,7 +28,7 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
       return _buildCnt + 1;
     }).listen((newBuildCnt) {
       _buildCnt = newBuildCnt;
-      markNeedsBuild(); // TODO: No need to call this on the first iteration
+      markNeedsBuild();
     }, null);
     if (_lastWasError == true) {
       throw _error!;
