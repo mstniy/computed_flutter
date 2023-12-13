@@ -4,30 +4,24 @@ import 'value_listenable_extension.dart';
 
 mixin _ComputedFlutterElementMixin on ComponentElement {
   final _forceRebuild = ValueNotifier<int>(0);
-  ComputedSubscription<int>? _sub;
+  ComputedSubscription<void>? _sub;
   Widget? _result;
   Object? _error;
-  int _buildCnt = 0;
   bool? _lastWasError;
 
   @override
   Widget build() {
     _sub ??= Computed(() {
-      _forceRebuild.use;
+      _forceRebuild.use; // So that we can force rebuilds
       try {
-        final newResult = super.build();
-        if (_lastWasError == false && newResult == _result) {
-          return _buildCnt;
-        }
-        _result = newResult;
+        _result = super.build();
         _lastWasError = false;
       } catch (e) {
         _lastWasError = true;
         _error = e;
       }
-      return _buildCnt + 1;
-    }).listen((newBuildCnt) {
-      _buildCnt = newBuildCnt;
+    }, memoized: false)
+        .listen((_) {
       super.markNeedsBuild();
     }, null);
     if (_lastWasError == true) {
