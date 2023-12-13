@@ -7,28 +7,18 @@ import 'package:computed/src/computed.dart';
 // ignore: implementation_imports
 import 'package:computed/src/data_source_subscription.dart';
 
-T checkIdempotent<T>(T Function() f) {
-  final res = f(); // TODO: What if the function throws?
+class ComputedListenableExtensionUpdateToken {}
 
-  bool ast() {
-    return f() == res;
-  }
-
-  assert(ast(), "Listenable selectors must be purely functional.");
-
-  return res;
-}
-
-class ListenableDataSourceSubscription<T> implements DataSourceSubscription<T> {
-  final ComputedImpl<T> c;
-  final T Function() user;
+class ListenableDataSourceSubscription
+    implements DataSourceSubscription<ComputedListenableExtensionUpdateToken> {
+  final ComputedImpl<ComputedListenableExtensionUpdateToken> c;
   final Listenable l;
 
   void callback() {
-    c.onDataSourceData(checkIdempotent(user));
+    c.onDataSourceData(ComputedListenableExtensionUpdateToken());
   }
 
-  ListenableDataSourceSubscription(this.l, this.c, this.user) {
+  ListenableDataSourceSubscription(this.l, this.c) {
     l.addListener(callback);
   }
 

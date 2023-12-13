@@ -53,6 +53,18 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
   }
 }
 
+extension ComputedListenableExtension<ListenableType extends Listenable>
+    on ListenableType {
+  ListenableType get watch {
+    final caller = GlobalCtx.currentComputation;
+    caller.dataSourceUse<ComputedListenableExtensionUpdateToken>(
+        this,
+        (router) => ListenableDataSourceSubscription(this, router),
+        () => ComputedListenableExtensionUpdateToken());
+    return this;
+  }
+}
+
 extension ComputedValueListenableExtension<T> on ValueListenable<T> {
   /// As [Stream.use]
   T get use {
@@ -88,21 +100,6 @@ extension ComputedValueListenableExtension<T> on ValueListenable<T> {
   /// As [Stream.mockEmitError]
   void mockEmitError(Object e) {
     GlobalCtx.routerFor(this)?.onDataSourceError(e);
-  }
-}
-
-extension ComputedListenableExtension<T> on Listenable {
-  /// Returns a computation representing the application of the given function on this Listenable.
-  ///
-  /// Note that the given function is not called until the computation is eventually listened to.
-  Computed<T> select(T Function() user) {
-    return Computed(() {
-      final caller = GlobalCtx.currentComputation;
-      return caller.dataSourceUse(
-          this,
-          (router) => ListenableDataSourceSubscription<T>(this, router, user),
-          () => checkIdempotent(user));
-    });
   }
 }
 

@@ -134,15 +134,15 @@ void main() {
   });
 
   group('Listenable', () {
-    test('select works', () async {
+    test('watch works', () async {
       final v = _TestDataSource(1);
 
       var cCnt = 0;
 
       // ignore: unnecessary_cast
-      final c = (v as Listenable).select(() {
+      final c = $(() {
         cCnt++;
-        return v.value * 2;
+        return v.watch.value * 2;
       });
 
       var expectation = 2;
