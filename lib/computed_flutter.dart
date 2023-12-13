@@ -5,38 +5,11 @@ import 'package:computed/src/computed.dart';
 import 'package:computed_flutter/src/computed_flutter.dart';
 import 'package:computed_flutter/src/listenable_extension.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 
 import 'src/computed_listenable.dart';
 import 'src/value_listenable_extension.dart';
 import 'src/computed_value_listenable.dart';
-
-class _ComputedMetadata<T> {
-  bool? _lastWasValue;
-  T? _lastValue;
-  Object? _lastError;
-}
-
-class _ComputedFlutterCtx {
-  static final _computations = <Computed, _ComputedMetadata>{};
-  static final _listeners =
-      <BuildContext, Map<Computed, ComputedSubscription>>{};
-  static var _postFrameCallbackScheduled = false;
-}
-
-void _postFrameCallback(Duration _) {
-  // TODO: Also garbage collect individual listeners, in case a widget stop listening a computation from one frame to another
-  // "Garbage-collect" unmounted BuildContexts
-  for (var kv in _ComputedFlutterCtx._listeners.entries) {
-    if (kv.key.mounted == false) {
-      for (var sub in kv.value.values) {
-        sub.cancel();
-      }
-      _ComputedFlutterCtx._listeners.remove(kv.key);
-    }
-  }
-}
 
 extension ComputedAsValueListenableExtension<T> on Computed<T> {
   /// Returns a [ValueListenable] tracking this computation.
@@ -77,61 +50,6 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
         },
         listenable: listenable,
         key: key);
-  }
-
-  /// Returns the current result of the computation, or [or] if it has no result yet, and marks the current widget for re-builds whenever it changes.
-  ///
-  /// If [or] is not provided and the computation has no value, throws [NoValueException].
-  T watch(BuildContext context, {T Function()? or}) {
-    var metadata = _ComputedFlutterCtx._computations[this];
-    if (metadata == null) {
-      metadata = _ComputedMetadata();
-      _ComputedFlutterCtx._computations[this] = metadata;
-    }
-    listenerCommon() {
-      assert(
-          SchedulerBinding.instance.schedulerPhase !=
-              SchedulerPhase.persistentCallbacks,
-          'Computation changed value during widget build');
-      // Mark the element as needing to be rebuilt
-      (context as Element).markNeedsBuild();
-    }
-
-    valueListener(T event) {
-      listenerCommon();
-      metadata!._lastWasValue = true;
-      metadata._lastValue = event;
-    }
-
-    errorListener(Object error) {
-      listenerCommon();
-      metadata!._lastWasValue = false;
-      metadata._lastError = error;
-    }
-
-    _ComputedFlutterCtx._listeners
-        .putIfAbsent(context, () => <Computed, ComputedSubscription>{})
-        .putIfAbsent(this, () => listen(valueListener, errorListener));
-
-    if (!_ComputedFlutterCtx._postFrameCallbackScheduled) {
-      _ComputedFlutterCtx._postFrameCallbackScheduled = true;
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        _ComputedFlutterCtx._postFrameCallbackScheduled = false;
-        SchedulerBinding.instance.addPostFrameCallback(_postFrameCallback);
-      });
-    }
-
-    if (metadata._lastWasValue == null) {
-      if (or != null) {
-        return or();
-      } else {
-        throw NoValueException();
-      }
-    } else if (metadata._lastWasValue == true) {
-      return metadata._lastValue;
-    } else {
-      throw metadata._lastError!;
-    }
   }
 }
 
