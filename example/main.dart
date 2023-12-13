@@ -39,7 +39,7 @@ class MyHomePage extends ComputedWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  final Computed<BuiltList<int>> list = Computed(() {
+  final Computed<BuiltList<int>> list = $(() {
     final anyNegative = source.use.any((element) => element < 0);
     final maybeReversed =
         anyNegative ? source.use.reversed.toBuiltList() : source.use;
