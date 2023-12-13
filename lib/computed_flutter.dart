@@ -121,11 +121,6 @@ abstract class ComputedWidget extends StatelessWidget {
   StatelessElement createElement() => ComputedFlutterElement(this);
 }
 
-/*class ComputedBuilder extends StatefulWidget {
-  final Widget Function(BuildContext) _builder;
-  final Widget Function(BuildContext) _noValue;
-  final Widget Function(BuildContext) _error;
-
-  @override
-  State<ComputedBuilder> createState() => _ComputedBuilderState();
-}*/
+class ComputedBuilder extends Builder with ComputedFlutterMixin {
+  ComputedBuilder({super.key, required super.builder});
+}
