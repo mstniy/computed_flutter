@@ -6,7 +6,7 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
   ComputedSubscription<void>? _sub;
   Widget? _result;
   Object? _error;
-  bool? _lastWasError;
+  late bool _lastWasError;
 
   @override
   Widget build() {
@@ -22,10 +22,7 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
         .listen((_) {
       markNeedsBuild();
     }, null);
-    if (_lastWasError == null) {
-      return const SizedBox
-          .shrink(); // TODO: Allow .listen to return the result in the same microtask
-    } else if (_lastWasError == true) {
+    if (_lastWasError == true) {
       throw _error!;
     } else {
       return _result!;
