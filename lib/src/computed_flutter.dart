@@ -3,23 +3,29 @@ import 'package:flutter/widgets.dart';
 // ignore: implementation_imports
 
 mixin _ComputedFlutterElementMixin on ComponentElement {
-  ComputedSubscription<void>? _sub;
+  ComputedSubscription<int>? _sub;
   Widget? _result;
   Object? _error;
-  late bool _lastWasError;
+  int _buildCnt = 0;
+  bool? _lastWasError;
 
   @override
   Widget build() {
     _sub ??= Computed(() {
       try {
-        _result = super.build();
+        final newResult = super.build();
+        if (_lastWasError == false && newResult == _result) {
+          return _buildCnt;
+        }
+        _result = newResult;
         _lastWasError = false;
       } catch (e) {
         _lastWasError = true;
         _error = e;
       }
-    }, memoized: false)
-        .listen((_) {
+      return _buildCnt + 1;
+    }).listen((newBuildCnt) {
+      _buildCnt = newBuildCnt;
       markNeedsBuild();
     }, null);
     if (_lastWasError == true) {
