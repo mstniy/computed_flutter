@@ -159,4 +159,36 @@ void main() {
     expectText(tester, key, "1");
     expect(buildCnt[0], 4);
   });
+
+  testWidgets('throwing computation throws during widget build',
+      (tester) async {
+    final buildCnt = [0];
+    var flag = false;
+
+    final originalOnError = FlutterError.onError;
+
+    FlutterError.onError = (details) {
+      expect(flag, false);
+      expect(details.stack.toString(), contains('myThrowingFunction'));
+      flag = true;
+    };
+
+    Never myThrowingFunction() {
+      throw 42;
+    }
+
+    try {
+      await tester.pumpWidget(ComputedBuilder(builder: (ctx) {
+        buildCnt[0]++;
+        myThrowingFunction();
+      }));
+
+      FlutterError.onError = null;
+
+      expect(buildCnt[0], 2);
+      expect(flag, true);
+    } finally {
+      FlutterError.onError = originalOnError;
+    }
+  });
 }

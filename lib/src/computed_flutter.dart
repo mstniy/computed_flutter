@@ -7,6 +7,7 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
   ComputedSubscription<void>? _sub;
   Widget? _result;
   Object? _error;
+  StackTrace? _trace;
   bool? _lastWasError;
 
   @override
@@ -16,16 +17,18 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
       try {
         _result = super.build();
         _lastWasError = false;
-      } catch (e) {
+      } catch (e, s) {
         _lastWasError = true;
         _error = e;
+        _trace = s;
       }
     }, memoized: false)
         .listen((_) {
-      super.markNeedsBuild();
+      super
+          .markNeedsBuild(); // TODO: Doesn't this lead to an extra, unnecessary frame (not a user build) being drawn?
     }, null);
     if (_lastWasError == true) {
-      throw _error!;
+      Error.throwWithStackTrace(_error!, _trace!);
     } else {
       return _result!;
     }
