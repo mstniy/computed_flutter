@@ -4,6 +4,7 @@ import 'value_listenable_extension.dart';
 
 mixin _ComputedFlutterElementMixin on ComponentElement {
   final _forceRebuild = ValueNotifier<int>(0);
+  var _firstFrame = true;
   ComputedSubscription<void>? _sub;
   Widget? _result;
   Object? _error;
@@ -24,8 +25,8 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
       }
     }, memoized: false)
         .listen((_) {
-      super
-          .markNeedsBuild(); // TODO: Doesn't this lead to an extra, unnecessary frame (not a user build) being drawn?
+      if (!_firstFrame) super.markNeedsBuild();
+      _firstFrame = false;
     }, null);
     if (_lastWasError == true) {
       Error.throwWithStackTrace(_error!, _trace!);
