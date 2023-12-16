@@ -2,10 +2,14 @@ import 'package:computed/computed.dart';
 import 'package:flutter/widgets.dart';
 import 'value_listenable_extension.dart';
 
+class _Token {}
+
 mixin _ComputedFlutterElementMixin on ComponentElement {
-  final _forceRebuild = ValueNotifier<int>(0);
-  var _firstFrame = true;
-  ComputedSubscription<void>? _sub;
+  final _forceRebuild = ValueNotifier(_Token());
+  var _buildToken = _Token(); // Hack to keep Computed from undoing the DAG
+  var _dirty = false;
+  var _ignoreListener = true;
+  ComputedSubscription<_Token>? _sub;
   Widget? _result;
   Object? _error;
   StackTrace? _trace;
@@ -13,8 +17,13 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
 
   @override
   Widget build() {
+    if (_dirty) {
+      _ignoreListener = true;
+      _forceRebuild.value = _Token();
+      _dirty = false;
+    }
     _sub ??= Computed(() {
-      _forceRebuild.use; // So that we can force rebuilds
+      _forceRebuild.react((p0) {}); // So that we can force rebuilds
       try {
         _result = super.build();
         _lastWasError = false;
@@ -23,11 +32,14 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
         _error = e;
         _trace = s;
       }
-    }, memoized: false)
-        .listen((_) {
-      if (!_firstFrame) super.markNeedsBuild();
-      _firstFrame = false;
-    }, null);
+      return _buildToken;
+    }).listen((_) {
+      _buildToken = _Token();
+      if (!_ignoreListener) super.markNeedsBuild();
+      _ignoreListener = false;
+    }, (_) {
+      assert(false);
+    });
     if (_lastWasError == true) {
       Error.throwWithStackTrace(_error!, _trace!);
     } else {
@@ -44,7 +56,8 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
 
   @override
   void markNeedsBuild() {
-    _forceRebuild.value++;
+    _dirty = true;
+    super.markNeedsBuild();
   }
 }
 
