@@ -74,7 +74,7 @@ class MyWidget extends MyOtherWidget with ComputedFlutterMixin {
 
 ### <a name='UsingComputedBuilder'></a>Using `ComputedBuilder`
 
-If you are using a widget whose definition you cannot modify, or wish to limit the scope or reactive widget rebuilds, use `ComputedBuilder`:
+If you are using a widget whose definition you cannot modify, or wish to limit the scope of reactive widget rebuilds, use `ComputedBuilder`:
 
 ```
 ComputedBuilder(builder: (ctx) =>
@@ -120,4 +120,4 @@ c.asListenable; // Returns a [ComputedListenable]
 c.asValueListenable; // Returns a [ValueListenable]
 ```
 
-Of course, other ways of using computations as defined by the base Computed package are available. For easy reference, this includes `.use`, `.listen` and `asStream`.
+Of course, other ways of using computations as defined by the base Computed package are available. For easy reference, this includes `.use`, `.listen` and `.asStream`.
