@@ -46,8 +46,6 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
   void markNeedsBuild() {
     _forceRebuild.value++;
   }
-
-  // TODO: Do we need update/reassemble hooks also?
 }
 
 class ComputedFlutterElement extends StatelessElement
