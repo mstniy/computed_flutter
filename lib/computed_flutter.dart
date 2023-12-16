@@ -29,6 +29,7 @@ extension ComputedAsValueListenableExtension<T> on Computed<T> {
 
 extension ComputedListenableExtension<ListenableType extends Listenable>
     on ListenableType {
+  /// Subscribes the current computation to this [Listenable] and returns it.
   ListenableType get watch {
     final caller = GlobalCtx.currentComputation;
     caller.dataSourceUse<ComputedListenableExtensionUpdateToken>(
@@ -39,11 +40,13 @@ extension ComputedListenableExtension<ListenableType extends Listenable>
   }
 }
 
+/// Allows Computed to track reactive dependencies of the build method.
 mixin ComputedFlutterMixin on StatelessWidget {
   @override
   StatelessElement createElement() => ComputedFlutterElement(this);
 }
 
+/// A [StatelessWidget] the build method of which is tracked by Computed.
 abstract class ComputedWidget extends StatelessWidget {
   const ComputedWidget({super.key});
 
@@ -51,6 +54,7 @@ abstract class ComputedWidget extends StatelessWidget {
   StatelessElement createElement() => ComputedFlutterElement(this);
 }
 
+/// A [StatefulWidget] the build method of which is tracked by Computed.
 abstract class ComputedStatefulWidget extends StatefulWidget {
   const ComputedStatefulWidget({super.key});
 
@@ -58,6 +62,7 @@ abstract class ComputedStatefulWidget extends StatefulWidget {
   StatefulElement createElement() => ComputedFlutterStatefulElement(this);
 }
 
+/// As [Builder], but the builder is tracked by Computed.
 class ComputedBuilder extends Builder with ComputedFlutterMixin {
   ComputedBuilder({super.key, required super.builder});
 }

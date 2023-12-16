@@ -1,6 +1,6 @@
 import 'package:computed_flutter/computed_flutter.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class StatelessTestWidget extends ComputedWidget {
