@@ -163,6 +163,35 @@ void main() {
     expect(buildCnt[0], 4);
   });
 
+  testWidgets('swapping widgets on the same element works', (tester) async {
+    final v = ValueNotifier(UniqueKey());
+    final buildCnt = [0];
+
+    builder() {
+      final c = $(() => v.use);
+      return ComputedBuilder(builder: (ctx) {
+        buildCnt[0]++;
+        return SizedBox.shrink(key: c.use);
+      });
+    }
+
+    await tester.pumpWidget(builder());
+
+    expect(find.byKey(v.value), findsOneWidget);
+    expect(buildCnt[0], 2);
+
+    await tester.pumpWidget(builder());
+
+    expect(find.byKey(v.value), findsOneWidget);
+    expect(buildCnt[0], 2);
+
+    v.value = UniqueKey();
+    await tester.pump();
+
+    expect(find.byKey(v.value), findsOneWidget);
+    expect(buildCnt[0], 4);
+  });
+
   testWidgets('throwing computation throws during widget build',
       (tester) async {
     final buildCnt = [0];

@@ -37,9 +37,7 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
       _buildToken = _Token();
       if (!_ignoreListener) super.markNeedsBuild();
       _ignoreListener = false;
-    }, (_) {
-      assert(false);
-    });
+    }, null);
     if (_lastWasError == true) {
       Error.throwWithStackTrace(_error!, _trace!);
     } else {
