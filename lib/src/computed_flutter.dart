@@ -6,10 +6,9 @@ class _Token {}
 
 mixin _ComputedFlutterElementMixin on ComponentElement {
   final _forceRebuild = ValueNotifier(_Token());
-  var _buildToken = _Token(); // Hack to keep Computed from undoing the DAG
   var _dirty = false;
   var _ignoreListener = true;
-  ComputedSubscription<_Token>? _sub;
+  ComputedSubscription<void>? _sub;
   Widget? _result;
   Object? _error;
   StackTrace? _trace;
@@ -32,9 +31,8 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
         _error = e;
         _trace = s;
       }
-      return _buildToken;
-    }).listen((_) {
-      _buildToken = _Token();
+    }, memoized: false)
+        .listen((_) {
       if (!_ignoreListener) super.markNeedsBuild();
       _ignoreListener = false;
     }, null);
