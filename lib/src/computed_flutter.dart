@@ -6,20 +6,18 @@ class _Token {}
 
 mixin _ComputedFlutterElementMixin on ComponentElement {
   final _forceRebuild = ValueNotifier(_Token());
-  var _dirty = false;
   var _ignoreListener = true;
   ComputedSubscription<void>? _sub;
   Widget? _result;
   Object? _error;
   StackTrace? _trace;
-  bool? _lastWasError;
+  bool? _lastWasError; // If null: no cached result
 
   @override
   Widget build() {
-    if (_dirty) {
+    if (_lastWasError == null) {
       _ignoreListener = true;
       _forceRebuild.value = _Token();
-      _dirty = false;
     }
     _sub ??= Computed(() {
       _forceRebuild.react((p0) {}); // So that we can force rebuilds
@@ -36,10 +34,15 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
       if (!_ignoreListener) super.markNeedsBuild();
       _ignoreListener = false;
     }, null);
-    if (_lastWasError == true) {
-      Error.throwWithStackTrace(_error!, _trace!);
-    } else {
-      return _result!;
+    assert(_lastWasError != null);
+    try {
+      if (_lastWasError == true) {
+        Error.throwWithStackTrace(_error!, _trace!);
+      } else {
+        return _result!;
+      }
+    } finally {
+      _lastWasError = null; // Delete the cached result
     }
   }
 
@@ -52,7 +55,7 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
 
   @override
   void markNeedsBuild() {
-    _dirty = true;
+    _lastWasError = null;
     super.markNeedsBuild();
   }
 }

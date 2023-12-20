@@ -183,13 +183,13 @@ void main() {
     await tester.pumpWidget(builder());
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 2);
+    expect(buildCnt[0], 4);
 
     v.value = UniqueKey();
     await tester.pump();
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 4);
+    expect(buildCnt[0], 6);
   });
 
   testWidgets('throwing computation throws during widget build',
