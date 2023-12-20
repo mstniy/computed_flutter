@@ -46,20 +46,22 @@ mixin ComputedFlutterMixin on StatelessWidget {
   StatelessElement createElement() => ComputedFlutterElement(this);
 }
 
-/// A [StatelessWidget] the build method of which is tracked by Computed.
-abstract class ComputedWidget extends StatelessWidget {
-  const ComputedWidget({super.key});
-
+/// Allows Computed to track reactive dependencies of the build method.
+mixin ComputedFlutterStatefulMixin on StatefulWidget {
   @override
-  StatelessElement createElement() => ComputedFlutterElement(this);
+  StatefulElement createElement() => ComputedFlutterStatefulElement(this);
+}
+
+/// A [StatelessWidget] the build method of which is tracked by Computed.
+abstract class ComputedWidget extends StatelessWidget
+    with ComputedFlutterMixin {
+  const ComputedWidget({super.key});
 }
 
 /// A [StatefulWidget] the build method of which is tracked by Computed.
-abstract class ComputedStatefulWidget extends StatefulWidget {
+abstract class ComputedStatefulWidget extends StatefulWidget
+    with ComputedFlutterStatefulMixin {
   const ComputedStatefulWidget({super.key});
-
-  @override
-  StatefulElement createElement() => ComputedFlutterStatefulElement(this);
 }
 
 /// As [Builder], but the builder is tracked by Computed.
