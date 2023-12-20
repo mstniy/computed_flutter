@@ -14,7 +14,7 @@ Computed Flutter allows you to interface Computed with Flutter-specific function
 - [Here's how it works](#Hereshowitworks)
 - [Using Computed with widgets](#UsingComputedwithwidgets)
   - [Using `Computed[Stateful]Widget`](#UsingComputedStatefulWidget)
-  - [Using `ComputedFlutterMixin`](#UsingComputedFlutterMixin)
+  - [Using `ComputedFlutter[Stateful]Mixin`](#UsingComputedFlutterStatefulMixin)
   - [Using `ComputedBuilder`](#UsingComputedBuilder)
 - [Ingesting data sources](#Ingestingdatasources)
 - [Using results of computations](#Usingresultsofcomputations)
@@ -62,12 +62,16 @@ class MyWidget extends ComputedWidget {
 }
 ```
 
-### <a name='UsingComputedFlutterMixin'></a>Using `ComputedFlutterMixin`
+### <a name='UsingComputedFlutterStatefulMixin'></a>Using `ComputedFlutter[Stateful]Mixin`
 
-If you do not want your widgets to extend `Computed[Stateful]Widget`, perhaps for widgets already extending some other class, you can use the mixin:
+If you do not want your widgets to extend `Computed[Stateful]Widget`, perhaps for widgets already extending some other class, you can use the mixins:
 
 ```
 class MyWidget extends MyOtherWidget with ComputedFlutterMixin {
+    ...
+}
+
+class MyStatefulWidget extends MyOtherStatefulWidget with ComputedFlutterStatefulMixin {
     ...
 }
 ```
