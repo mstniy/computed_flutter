@@ -7,17 +7,17 @@ Flutter bindings for [Computed](https://github.com/mstniy/computed.dart).
 
 Computed Flutter allows you to interface Computed with Flutter-specific functionality, like `Widget`s and `Listenable`s.
 
-## <a name='Tableofcontents'></a>Table of contents
+## <a name='table-of-contents'></a>Table of contents
 
 <!-- vscode-markdown-toc -->
 
-- [Here's how it works](#Hereshowitworks)
-- [Using Computed with widgets](#UsingComputedwithwidgets)
-  - [Using `Computed[Stateful]Widget`](#UsingComputedStatefulWidget)
-  - [Using `ComputedFlutter[Stateful]Mixin`](#UsingComputedFlutterStatefulMixin)
-  - [Using `ComputedBuilder`](#UsingComputedBuilder)
-- [Ingesting data sources](#Ingestingdatasources)
-- [Using results of computations](#Usingresultsofcomputations)
+- [Here is how it works](#here-is-how-it-works)
+- [Using Computed with widgets](#using-computed-with-widgets)
+  - [Using `Computed[Stateful]Widget`](#using-`computed[stateful]widget`)
+  - [Using `ComputedFlutter[Stateful]Mixin`](#using-`computedflutter[stateful]mixin`)
+  - [Using `ComputedBuilder`](#using-`computedbuilder`)
+- [Ingesting data sources](#ingesting-data-sources)
+- [Using results of computations](#using-results-of-computations)
 
 <!-- vscode-markdown-toc-config
 	numbering=false
@@ -25,7 +25,7 @@ Computed Flutter allows you to interface Computed with Flutter-specific function
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-## <a name='Hereshowitworks'></a>Here's how it works
+## <a name='here-is-how-it-works'></a>Here is how it works
 
 Assume you have a data source, like a `ValueListenable` representing some external state:
 
@@ -43,12 +43,12 @@ Text('${v.use}')
 
 Note that this does not use code generation, nor does it restrict your codebase to have at most one data source per object type.
 
-## <a name='UsingComputedwithwidgets'></a>Using Computed with widgets
+## <a name='using-computed-with-widgets'></a>Using Computed with widgets
 
 Using Computed facilities, like `.use` and `.react`, inside the `build` methods of widgets requires Computed to be aware of them.  
 You can achieve this in several ways:
 
-### <a name='UsingComputedStatefulWidget'></a>Using `Computed[Stateful]Widget`
+### <a name='using-`computed[stateful]widget`'></a>Using `Computed[Stateful]Widget`
 
 If you have a custom widget, extending `StatelessWidget` or `StatefulWidget`, modify them to extend `ComputedWidget` or `ComputedStatefulWidget` instead:
 
@@ -62,7 +62,7 @@ class MyWidget extends ComputedWidget {
 }
 ```
 
-### <a name='UsingComputedFlutterStatefulMixin'></a>Using `ComputedFlutter[Stateful]Mixin`
+### <a name='using-`computedflutter[stateful]mixin`'></a>Using `ComputedFlutter[Stateful]Mixin`
 
 If you do not want your widgets to extend `Computed[Stateful]Widget`, perhaps for widgets already extending some other class, you can use the mixins:
 
@@ -76,7 +76,7 @@ class MyStatefulWidget extends MyOtherStatefulWidget with ComputedFlutterStatefu
 }
 ```
 
-### <a name='UsingComputedBuilder'></a>Using `ComputedBuilder`
+### <a name='using-`computedbuilder`'></a>Using `ComputedBuilder`
 
 If you are using a widget whose definition you cannot modify, or wish to limit the scope of reactive widget rebuilds, use `ComputedBuilder`:
 
@@ -86,7 +86,7 @@ ComputedBuilder(builder: (ctx) =>
 )
 ```
 
-## <a name='Ingestingdatasources'></a>Ingesting data sources
+## <a name='ingesting-data-sources'></a>Ingesting data sources
 
 Computed Flutter supports reactively depending on `ValueListenable`s with `.use`, as with Computed:
 
@@ -113,7 +113,7 @@ final c = $((){
 });
 ```
 
-## <a name='Usingresultsofcomputations'></a>Using results of computations
+## <a name='using-results-of-computations'></a>Using results of computations
 
 Computed Flutter allows you to turn computations into `Listenable`s and `ValueListenable`s:
 
