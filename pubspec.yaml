@@ -10,9 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  computed: ^0.3.2
-  #computed:
-  #  path: ../computed
+  #computed: ^0.3.2
+  computed:
+    path: ../computed
 dev_dependencies:
   flutter_test:
     sdk: flutter

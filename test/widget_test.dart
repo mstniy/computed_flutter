@@ -163,6 +163,62 @@ void main() {
     expect(buildCnt[0], 4);
   });
 
+  testWidgets('widgets are built at build() time', (tester) async {
+    final v = ValueNotifier(0);
+    var nonReactive = UniqueKey();
+
+    await tester.pumpWidget(ComputedBuilder(builder: (ctx) {
+      v.use;
+      return SizedBox.shrink(key: nonReactive);
+    }));
+
+    expect(find.byKey(nonReactive), findsOneWidget);
+
+    v.value = 1;
+    nonReactive = UniqueKey();
+
+    await tester.pump();
+
+    expect(find.byKey(nonReactive), findsOneWidget);
+  });
+
+  testWidgets('nested computed widgets work', (tester) async {
+    final v = ValueNotifier(UniqueKey());
+    final buildCnt = [0, 0];
+
+    await tester.pumpWidget(ComputedBuilder(builder: (ctx) {
+      buildCnt[0]++;
+      v.use;
+      return ComputedBuilder(builder: (ctx) {
+        buildCnt[1]++;
+        return SizedBox.shrink(key: v.use);
+      });
+    }));
+
+    expect(find.byKey(v.value), findsOneWidget);
+    expect(buildCnt[0], 2);
+    expect(buildCnt[1], 2);
+
+    await tester.pump();
+
+    expect(find.byKey(v.value), findsOneWidget);
+    expect(buildCnt[0], 2);
+    expect(buildCnt[1], 2);
+
+    v.value = UniqueKey();
+    await tester.pump();
+
+    expect(find.byKey(v.value), findsOneWidget);
+    expect(buildCnt[0], 4);
+    expect(buildCnt[1], 4);
+
+    await tester.pump();
+
+    expect(find.byKey(v.value), findsOneWidget);
+    expect(buildCnt[0], 4);
+    expect(buildCnt[1], 4);
+  });
+
   testWidgets('swapping widgets on the same element works', (tester) async {
     final v = ValueNotifier(UniqueKey());
     final buildCnt = [0];

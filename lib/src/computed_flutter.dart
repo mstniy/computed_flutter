@@ -1,12 +1,29 @@
-import 'package:computed/computed.dart';
+// ignore: implementation_imports
+import 'package:computed/src/computed.dart';
+import 'package:computed_flutter/computed_flutter.dart';
 import 'package:flutter/widgets.dart';
-import 'value_listenable_extension.dart';
+
+class _FlutterComputedImpl extends ComputedImpl<void> {
+  final ComponentElement _element;
+  _FlutterComputedImpl(this._element, void Function() build)
+      : super(build, false, false);
+
+  @override
+  void onDependencyUpdated() {
+    // Delay until reeval() is called
+    _element.markNeedsBuild();
+  }
+
+  void reeval() {
+    super.onDependencyUpdated();
+  }
+}
 
 class _Token {}
 
 mixin _ComputedFlutterElementMixin on ComponentElement {
   final _forceRebuild = ValueNotifier(_Token());
-  var _ignoreListener = true;
+  _FlutterComputedImpl? _c;
   ComputedSubscription<void>? _sub;
   Widget? _result;
   Object? _error;
@@ -16,10 +33,9 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
   @override
   Widget build() {
     if (_lastWasError == null) {
-      _ignoreListener = true;
       _forceRebuild.value = _Token();
     }
-    _sub ??= Computed(() {
+    _c ??= _FlutterComputedImpl(this, () {
       _forceRebuild.react((p0) {}); // So that we can force rebuilds
       try {
         _result = super.build();
@@ -29,11 +45,9 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
         _error = e;
         _trace = s;
       }
-    }, memoized: false)
-        .listen((_) {
-      if (!_ignoreListener) super.markNeedsBuild();
-      _ignoreListener = false;
-    }, null);
+    });
+    _sub ??= _c!.listen(null, null);
+    _c!.reeval();
     assert(_lastWasError != null);
     try {
       if (_lastWasError == true) {
@@ -50,13 +64,8 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
   void unmount() {
     _sub?.cancel();
     _sub = null;
+    _c = null;
     super.unmount();
-  }
-
-  @override
-  void markNeedsBuild() {
-    _lastWasError = null;
-    super.markNeedsBuild();
   }
 }
 
