@@ -1,3 +1,8 @@
+## 0.2.0 - 2023-12-25
+
+- Upgraded Computed to 0.4
+- Rebuild `Widget`s during `build()`, instead of when their dependencies change
+
 ## 0.1.1 - 2023-12-21
 
 - `Element::build`: Always rebuild, unless there is a cached build already
