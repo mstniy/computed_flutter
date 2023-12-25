@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:computed_flutter/computed_flutter.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
@@ -278,5 +280,21 @@ void main() {
     } finally {
       FlutterError.onError = originalOnError;
     }
+  });
+
+  testWidgets('unmounting elements cancels its listeners', (tester) async {
+    final controller = StreamController(sync: true);
+    final stream = controller.stream;
+
+    await tester.pumpWidget(ComputedBuilder(builder: (ctx) {
+      stream.useOr(0);
+      return const SizedBox.shrink();
+    }));
+
+    expect(controller.hasListener, true);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+
+    expect(controller.hasListener, false);
   });
 }
