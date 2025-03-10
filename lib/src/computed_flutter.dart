@@ -6,12 +6,14 @@ import 'package:flutter/widgets.dart';
 class _FlutterComputedImpl extends ComputedImpl<void> {
   final ComponentElement _element;
   _FlutterComputedImpl(this._element, void Function() build)
-      : super(build, false, false);
+      : super(build, false, true, false, null, null);
 
   @override
-  void onDependencyUpdated() {
+  Set<Computed> onDependencyUpdated() {
     // Delay until reeval() is called
     _element.markNeedsBuild();
+    // we have no downstream
+    return {};
   }
 
   void reeval() {
@@ -46,8 +48,11 @@ mixin _ComputedFlutterElementMixin on ComponentElement {
         _trace = s;
       }
     });
-    _sub ??= _c!.listen(null, null);
-    _c!.reeval();
+    if (_sub == null) {
+      _sub = _c!.listen(null, null);
+    } else {
+      _c!.reeval();
+    }
     assert(_lastWasError != null);
     try {
       if (_lastWasError == true) {

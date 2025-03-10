@@ -220,14 +220,11 @@ void main() {
         expect(cCnt, 6);
         expect(lCnt, 2);
         expectation = 2;
-        c.fix(2);
-        expect(cCnt, 6);
-        expect(lCnt, 3);
         expectation = null;
         errExpectation = 3;
-        c.fixThrow(3);
-        expect(cCnt, 6);
-        expect(lCnt, 4);
+        controller.addError(3);
+        expect(cCnt, 7);
+        expect(lCnt, 3);
       });
     });
   });

@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  computed: ^0.4.0
+  computed: ^0.5.1
   #computed:
   #  path: ../computed
 dev_dependencies:
