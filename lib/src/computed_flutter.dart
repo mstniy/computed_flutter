@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 class _FlutterComputedImpl extends ComputedImpl<void> {
   final ComponentElement _element;
   _FlutterComputedImpl(this._element, void Function() build)
-      : super(build, false, true, false, null, null);
+      : super(build, false, false, true, null, null);
 
   @override
   Set<Computed> onDependencyUpdated() {

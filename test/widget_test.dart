@@ -65,7 +65,7 @@ void main() {
     await tester.pumpWidget(StatelessTestWidget(v, buildCnt));
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 2);
+    expect(buildCnt[0], 1);
 
     var flag1 = false;
 
@@ -78,18 +78,18 @@ void main() {
 
     expect(flag1, false, reason: 'No unexpected frames');
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 2);
+    expect(buildCnt[0], 1);
 
     v.value = UniqueKey();
     await tester.pump();
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 4);
+    expect(buildCnt[0], 2);
 
     await tester.pump();
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 4);
+    expect(buildCnt[0], 2);
   });
 
   testWidgets('ComputedStatefulWidget', (tester) async {
@@ -101,39 +101,39 @@ void main() {
 
     expect(find.byKey(v1.value), findsOneWidget);
     expect(find.byKey(v2.value), findsOneWidget);
-    expect(buildCnt[0], 2);
+    expect(buildCnt[0], 1);
 
     await tester.pump();
 
     expect(find.byKey(v1.value), findsOneWidget);
     expect(find.byKey(v2.value), findsOneWidget);
-    expect(buildCnt[0], 2);
+    expect(buildCnt[0], 1);
 
     v1.value = UniqueKey();
     await tester.pump();
 
     expect(find.byKey(v1.value), findsOneWidget);
     expect(find.byKey(v2.value), findsOneWidget);
-    expect(buildCnt[0], 4);
+    expect(buildCnt[0], 2);
 
     await tester.pump();
 
     expect(find.byKey(v1.value), findsOneWidget);
     expect(find.byKey(v2.value), findsOneWidget);
-    expect(buildCnt[0], 4);
+    expect(buildCnt[0], 2);
 
     v2.value = UniqueKey();
     await tester.pump();
 
     expect(find.byKey(v1.value), findsOneWidget);
     expect(find.byKey(v2.value), findsOneWidget);
-    expect(buildCnt[0], 6);
+    expect(buildCnt[0], 3);
 
     await tester.pump();
 
     expect(find.byKey(v1.value), findsOneWidget);
     expect(find.byKey(v2.value), findsOneWidget);
-    expect(buildCnt[0], 6);
+    expect(buildCnt[0], 3);
   });
 
   testWidgets('ComputedBuilder', (tester) async {
@@ -146,23 +146,23 @@ void main() {
     }));
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 2);
+    expect(buildCnt[0], 1);
 
     await tester.pump();
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 2);
+    expect(buildCnt[0], 1);
 
     v.value = UniqueKey();
     await tester.pump();
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 4);
+    expect(buildCnt[0], 2);
 
     await tester.pump();
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 4);
+    expect(buildCnt[0], 2);
   });
 
   testWidgets('widgets are built at build() time', (tester) async {
@@ -198,27 +198,27 @@ void main() {
     }));
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 2);
-    expect(buildCnt[1], 2);
+    expect(buildCnt[0], 1);
+    expect(buildCnt[1], 1);
 
     await tester.pump();
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 2);
-    expect(buildCnt[1], 2);
+    expect(buildCnt[0], 1);
+    expect(buildCnt[1], 1);
 
     v.value = UniqueKey();
     await tester.pump();
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 4);
-    expect(buildCnt[1], 4);
+    expect(buildCnt[0], 2);
+    expect(buildCnt[1], 2);
 
     await tester.pump();
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 4);
-    expect(buildCnt[1], 4);
+    expect(buildCnt[0], 2);
+    expect(buildCnt[1], 2);
   });
 
   testWidgets('swapping widgets on the same element works', (tester) async {
@@ -236,18 +236,18 @@ void main() {
     await tester.pumpWidget(builder());
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 2);
+    expect(buildCnt[0], 1);
 
     await tester.pumpWidget(builder());
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 4);
+    expect(buildCnt[0], 2);
 
     v.value = UniqueKey();
     await tester.pump();
 
     expect(find.byKey(v.value), findsOneWidget);
-    expect(buildCnt[0], 6);
+    expect(buildCnt[0], 3);
   });
 
   testWidgets('throwing computation throws during widget build',
@@ -275,7 +275,7 @@ void main() {
 
       FlutterError.onError = null;
 
-      expect(buildCnt[0], 2);
+      expect(buildCnt[0], 1);
       expect(flag, true);
     } finally {
       FlutterError.onError = originalOnError;
@@ -296,5 +296,15 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
 
     expect(controller.hasListener, false);
+  });
+
+  testWidgets('computed widgets can use async', (tester) async {
+    final key = UniqueKey();
+    await tester.pumpWidget(ComputedBuilder(builder: (ctx) {
+      Future.value().then((_) {});
+      return SizedBox.shrink(key: key);
+    }));
+
+    expect(find.byKey(key), findsOneWidget);
   });
 }
