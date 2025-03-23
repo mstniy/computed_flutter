@@ -1,3 +1,8 @@
+## 0.3.0 - 2025-03-23
+
+- Upgraded to Computed 0.5
+- Let computed widgets use async operations
+
 ## 0.2.0 - 2023-12-25
 
 - Upgraded Computed to 0.4
